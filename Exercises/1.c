@@ -44,4 +44,29 @@ if (((n)==Y) || ((n)==y))
 	else if (strcmp(choice, "n")==0)
 	{
 		printf("Enter y or n please \n");
+
+	}
+
+
+
+
+
+
+
+
+	// imported
+	double cost = 0;
+	// We will loop over the array to find out how much it will cost the customer to buy all these items
+	for(int i=0; i < 2; i++)
+	{
+		cost += cp[i].price * quantity;
+	}
+	// in this simple example the customer either can afford it all or nothing, you will want to be able to let them buy what they can afford
+	if (cost <= budget)
+	{
+		// we reduce the customers cash
+		budget -= cost;
+		// the shop gets the money
+		shopCash += cost;
+		printf("\nThe customer can buy everything they wanted and now the shop has %.2f and the customer has %.2f remaining\n", shopCash, budget);
 	}
