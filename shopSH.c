@@ -39,6 +39,7 @@ ssize_t getline(char **linep, size_t *n, FILE *fp){
     return getdelim(linep, n, '\n', fp);
 }
 
+//Defining structs for program
 struct Product {
 	char* name;
 	double price;
@@ -65,7 +66,6 @@ struct Customer {
 
 struct Shop createAndStockShop()
 {
-	struct Shop shop = { 200 };
     FILE * fp;
     char * line = NULL;
     size_t len = 0;
@@ -74,6 +74,12 @@ struct Shop createAndStockShop()
     fp = fopen("stock.csv", "r");
     if (fp == NULL)
         exit(EXIT_FAILURE);
+
+        read = getline(&line, &len, fp);
+    		char *d = strtok(line, ",");
+    		double cash = atof(d);
+
+    		struct Shop shop = { cash };
 
     while ((read = getline(&line, &len, fp)) != -1) {
         // printf("Retrieved line of length %zu:\n", read);
@@ -114,7 +120,6 @@ struct Customer customerOrder()
 		strcpy(custName,a);
 		struct Customer customer = {custName,custBudget};
 
-
     while ((read = getline(&line, &len, fp)) != -1) {
 		char *name = strtok(line, ",");
 		char *qty = strtok(NULL, ",");
@@ -122,8 +127,10 @@ struct Customer customerOrder()
 		int quantity = atoi(qty);
 		char *productName = malloc(sizeof(char) * 50);
 		strcpy(productName, name);
-		struct ProductStock shoppingListItem = {productName,quantity};
+
+    struct ProductStock shoppingListItem = {productName, quantity};
 		customer.shoppingList[customer.index++] = shoppingListItem;
+    printf("NAME OF PRODUCT %s PRICE QUANTITY %d\n", productName, quantity);
     }
 return customer;
 }
@@ -181,7 +188,6 @@ void printProduct(struct Product p)
 	printf("-------------\n");
 }
 
-
 void printShop(struct Shop shop)
 {
 	printf("Shop has %.2f in cash\n", shop.cash);
@@ -193,51 +199,46 @@ void printShop(struct Shop shop)
 }
 
 
+
+
 void printCust(struct Customer customer)
 {
-	printf("Customer Name is %s and they have %.2f for budget\n", customer.name, customer.budget);
-	for (int i = 0; i < customer.index; i++)
+	printf("Customer %s has budget %.2f in cash\n", customer.name, customer.budget);
+  for (int i = 0; i < customer.index; i++)
 	{
-		printProduct(customer.shoppingList[i].product);
-		printf("The shop has %d of the above\n", customer.shoppingList[i].quantity);
+
+    printProduct(customer.shoppingList[i].product);
+		printf("The customer %s orders %d of the above\n", customer.name, customer.shoppingList[i].quantity);
+    double cost = customer.shoppingList[i].quantity*customer.shoppingList[i].product.price;
+    printf("The cost to %s will be %.2f\n",customer.name,cost);
+    printf("Price = \n",customer.shoppingList[i].product.price);
+
 	}
 }
 
 
 
 
+
+
 int main(){
 int pro = startup();
-
-createAndStockShop();
+struct Shop shop = createAndStockShop();
+//createAndStockShop();
 if (pro == 1){
   //customerOrder();
-  printf("sdlkjflskdjflsdkjf");
+
 }
-struct Shop shop = createAndStockShop();
+//struct Shop shop =
+createAndStockShop();
 printShop(shop);
+printf("shop case is %.2f\n", shop.cash);
 
 
 struct Customer customer = customerOrder();
 printCust(customer);
 
 
-
-//printf(cokeStock.quantity, cokeStock.product.name);
-
-// struct Customer dominic = { "Dominic", 100.0 };
-//
-// struct Product coke = { "Can Coke", 1.10 };
-// struct Product bread = { "Bread", 0.7 };
-// // printProduct(coke);
-//
-// struct ProductStock cokeStock = { coke, 20 };
-// struct ProductStock breadStock = { bread, 2 };
-//
-// dominic.shoppingList[dominic.index++] = cokeStock;
-// dominic.shoppingList[dominic.index++] = breadStock;
-//
-// printCustomer(dominic);
 	return 0;
 
 }
