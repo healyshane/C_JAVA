@@ -63,7 +63,7 @@ struct Customer {
 	int index;
 };
 
-
+// Reading in SHOP data from CSV
 struct Shop createAndStockShop()
 {
     FILE * fp;
@@ -99,7 +99,7 @@ struct Shop createAndStockShop()
 	return shop;
 }
 
-
+// Reading in CUSTOMER data from CSV
 struct Customer customerOrder()
 {
 		//struct Customer customer = {"John", 200};
@@ -128,15 +128,24 @@ struct Customer customerOrder()
 		char *productName = malloc(sizeof(char) * 50);
 		strcpy(productName, name);
 
-    struct ProductStock shoppingListItem = {productName, quantity};
+    struct Product p = {productName, 0}; //NAME PRICE
+    struct ProductStock shoppingListItem = {p, quantity};
 		customer.shoppingList[customer.index++] = shoppingListItem;
-    printf("NAME OF PRODUCT %s PRICE QUANTITY %d\n", productName, quantity);
     }
 return customer;
 }
 
 
 
+int findProduct(struct Shop s, char* name){
+  int x = 0;
+  for (int i=0;i<s.index;i++){
+    if(strcmp(name,s.stock[i].product.name) == 0){
+      return x = 1;
+    }
+}
+return x;
+}
 
 
 
@@ -148,19 +157,37 @@ int startup()
 
 	char* choice = (char*) malloc(10 * sizeof(char));
 
-  printf("Do you want LIVE mode, Y/N?\n");
+  printf("Start LIVE mode, Y/N?  ");
 	scanf("%s", choice);
-
+  printf("\n");
 	if (strcmp(choice, "y")==0 || strcmp(choice, "Y")==0){
-// ref fxn to read in shop data
-    char* productName = (char*) malloc(20 * sizeof(char));
-    char* temp = (char*) malloc(20 * sizeof(char)); //declared to handle whitespace
+
+char* productName = (char*) malloc(20 * sizeof(char));
+char* temp = (char*) malloc(20 * sizeof(char)); //declared to handle whitespace
+printf("What product would you like?\n");
+scanf("%c", &temp);
+scanf("%[^\n]s", productName);
+
+
+struct Shop s = createAndStockShop();
+
+int x = findProduct(s,productName);
+
+while(x != 1){
+
+int x = findProduct(s,productName);
+  char* productName = (char*) malloc(20 * sizeof(char));
+  char* temp = (char*) malloc(20 * sizeof(char)); //declared to handle whitespace
+
     printf("What product would you like?\n");
     scanf("%c", &temp);
     scanf("%[^\n]s", productName);
+    x = 0;
+  }
 
 
 // loop over to to check if it exists - TODO
+
 
     int quantity;
     printf("What quantity of %s is required?\n", productName);
@@ -170,10 +197,21 @@ int startup()
     printf("What is your budget?\n");
     scanf("%f", &budget);
     printf("Budget is %.2f and you require %d of product %s.\n",budget, quantity, productName);
-		return 1;
+
+//
+//
+// SEE SHOP C for creating customer struct with input from terminal
+
+struct Customer l = {"Mary",budget};
+struct ProductStock itemList = {productName, quantity};
+
+
+
+    return 1;
 
 	} else if (strcmp(choice, "n")==0 || strcmp(choice, "N")==0 ){
 		printf("Reading in Shop and Customer CSVs\n");
+    printf("---------------------------------\n");
 		return 2;
 
 	}else {
@@ -185,7 +223,7 @@ int startup()
 void printProduct(struct Product p)
 {
 	printf("PRODUCT NAME: %s \nPRODUCT PRICE: %.2f\n", p.name, p.price);
-	printf("-------------\n");
+
 }
 
 void printShop(struct Shop shop)
@@ -194,55 +232,136 @@ void printShop(struct Shop shop)
 	for (int i = 0; i < shop.index; i++)
 	{
 		printProduct(shop.stock[i].product);
-		printf("The shop has %d of the above\n", shop.stock[i].quantity);
+		printf("SHOP Product Quantity: %d\n", shop.stock[i].quantity);
+    printf("-------------\n");
 	}
 }
 
 
 
 
-void printCust(struct Customer customer)
+void printCust(struct Customer c)
 {
-	printf("Customer %s has budget %.2f in cash\n", customer.name, customer.budget);
-  for (int i = 0; i < customer.index; i++)
+//	printf("Customer %s has budget %.2f in cash\n", customer.name, customer.budget);
+  for (int i = 0; i < c.index; i++)
 	{
 
-    printProduct(customer.shoppingList[i].product);
-		printf("The customer %s orders %d of the above\n", customer.name, customer.shoppingList[i].quantity);
-    double cost = customer.shoppingList[i].quantity*customer.shoppingList[i].product.price;
-    printf("The cost to %s will be %.2f\n",customer.name,cost);
-    printf("Price = \n",customer.shoppingList[i].product.price);
+  //  printProduct(customer.shoppingList[i].product);
+
+    printf("The customer ordered %d of %s\n", c.shoppingList[i].quantity, c.shoppingList[i].product.name);
+    // double cost = customer.shoppingList[i].quantity*customer.shoppingList[i].product.price;
+
+    //double cost = customer.shoppingList[i].quantity * customer.shoppingList[i].product.price;
+		//printf("The cost to %s will be %.2f\n", customer.name, cost);
 
 	}
 }
 
 
+double findPrice(struct Shop s, char* name){
+  for (int i=0;i<s.index;i++){
+    if(strcmp(name,s.stock[i].product.name) == 0){
+      return s.stock[i].product.price;
+    }
+  }
+  return -1;
+}
 
 
+int findQuantity(struct Shop s, char* name){
+  for (int i=0;i<s.index;i++){
+    if(strcmp(name,s.stock[i].product.name) == 0){
+      return s.stock[i].quantity;
+    }
+  }
+  return -1;
+
+
+}
+
+
+void customerCost(struct Shop s, struct Customer* c){
+//function for assessing cost of customer order
+double customerCost = 0;
+
+for (int i=0; i<c->index; i++){
+  struct Product p = c->shoppingList[i].product;
+
+
+  int quantity = findQuantity(s,p.name);
+//  printf("The quantity of %s in the shop is %d \n",p.name,quantity);
+
+  if(quantity < c->shoppingList[i].quantity){
+    printf("\n");
+    printf("ALERT: Shop has %d stock of %s.\n",quantity, p.name);
+    printf("       As Customer requires %d items of %s,\n",c->shoppingList[i].quantity,p.name);
+    printf("       these items were removed before processing remainder of order!\n");
+    printf("\n");
+
+    c->shoppingList[i].quantity = 0;
+    //break;
+  }
+
+
+
+  double price = findPrice(s,p.name);
+
+  //printf("The price of %s in the shop is %.2f\n", p.name,price);
+  double itemCost = c->shoppingList[i].quantity * price;
+  customerCost += itemCost;
+
+
+
+
+}
+
+if(customerCost>c->budget){
+  printf("Customer %s has inadequate budget to satisfy order\n",c->name);
+}else{
+  c->budget = c->budget - customerCost;}
+
+//printf("Customer %s has budget %.2f \n",c->name, c->budget);
+printf("\n");
+printf("Total customer cost for order is %.2f \n", customerCost);
+
+}
 
 
 int main(){
-int pro = startup();
-struct Shop shop = createAndStockShop();
-//createAndStockShop();
-if (pro == 1){
-  //customerOrder();
-
-}
-//struct Shop shop =
-createAndStockShop();
-printShop(shop);
-printf("shop case is %.2f\n", shop.cash);
+struct Shop s = createAndStockShop();
+startup();
 
 
-struct Customer customer = customerOrder();
-printCust(customer);
+
+struct Customer c = customerOrder();
+
+
+printf("Customer %s has budget %.2f \n",c.name, c.budget);
+printf("\n");
+printCust(c);
+
+//Creating pass pointers to maintain values of variables in Customer.
+struct Customer* d = &c;
+
+//Define customer budget prior to ordering
+double x = c.budget;
+
+//Execute customer order from CSV
+customerCost(s,d);
+
+//Define customer budget post ordering
+double y = c.budget;
+
+printf("Shop CASH prior to Order is %.2f\n", s.cash);
+s.cash = s.cash + (x-y);
+printf("Shop CASH following Order is %.2f\n", s.cash);
+
+
+
 
 
 	return 0;
-
 }
-
 
 
 //write a method which loops through the Customers shopping list and for each item looks
