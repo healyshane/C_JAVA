@@ -108,7 +108,7 @@ struct Customer customerOrder()
     size_t len = 0;
     ssize_t read;
 
-    fp = fopen("customer1.csv", "r");
+    fp = fopen("customer.csv", "r");
     if (fp == NULL)
         exit(EXIT_FAILURE);
 
@@ -147,79 +147,6 @@ int findProduct(struct Shop s, char* name){
 return x;
 }
 
-
-
-
-int startup()
-{
-	printf("THE C SHOP \n");
-	printf("-------------\n");
-
-	char* choice = (char*) malloc(10 * sizeof(char));
-
-  printf("Start LIVE mode, Y/N?  ");
-	scanf("%s", choice);
-  printf("\n");
-	if (strcmp(choice, "y")==0 || strcmp(choice, "Y")==0){
-
-char* productName = (char*) malloc(20 * sizeof(char));
-char* temp = (char*) malloc(20 * sizeof(char)); //declared to handle whitespace
-printf("What product would you like?\n");
-scanf("%c", &temp);
-scanf("%[^\n]s", productName);
-
-
-struct Shop s = createAndStockShop();
-
-int x = findProduct(s,productName);
-
-while(x != 1){
-
-int x = findProduct(s,productName);
-  char* productName = (char*) malloc(20 * sizeof(char));
-  char* temp = (char*) malloc(20 * sizeof(char)); //declared to handle whitespace
-
-    printf("What product would you like?\n");
-    scanf("%c", &temp);
-    scanf("%[^\n]s", productName);
-    x = 0;
-  }
-
-
-// loop over to to check if it exists - TODO
-
-
-    int quantity;
-    printf("What quantity of %s is required?\n", productName);
-    scanf("%d", &quantity);
-
-    float budget;
-    printf("What is your budget?\n");
-    scanf("%f", &budget);
-    printf("Budget is %.2f and you require %d of product %s.\n",budget, quantity, productName);
-
-//
-//
-// SEE SHOP C for creating customer struct with input from terminal
-
-struct Customer l = {"Mary",budget};
-struct ProductStock itemList = {productName, quantity};
-
-
-
-    return 1;
-
-	} else if (strcmp(choice, "n")==0 || strcmp(choice, "N")==0 ){
-		printf("Reading in Shop and Customer CSVs\n");
-    printf("---------------------------------\n");
-		return 2;
-
-	}else {
-    printf("Enter Y or N, %s is invalid\n", choice);
-  }
-
-}
-
 void printProduct(struct Product p)
 {
 	printf("PRODUCT NAME: %s \nPRODUCT PRICE: %.2f\n", p.name, p.price);
@@ -236,6 +163,91 @@ void printShop(struct Shop shop)
     printf("-------------\n");
 	}
 }
+
+
+int startup()
+{
+	printf("THE C SHOP \n");
+	printf("-------------\n");
+
+	char* choice = (char*) malloc(10 * sizeof(char));
+
+  printf("Start LIVE mode, Y/N?  ");
+	scanf("%s", choice);
+  printf("\n");
+	if (strcmp(choice, "y")==0 || strcmp(choice, "Y")==0){
+
+char* userName = (char*) malloc(20 * sizeof(char));
+char* temp2 = (char*) malloc(20 * sizeof(char)); //declared to handle whitespace
+printf("What is your name?\n");
+scanf("%c", &temp2);
+scanf("%[^\n]s", userName);
+
+
+printf("\n");
+printf("Hi %s, please see below Shop products, enter product name as below:\n", userName);
+struct Shop s = createAndStockShop();
+printShop(s);
+printf("\n");
+char* productName = (char*) malloc(20 * sizeof(char));
+char* temp = (char*) malloc(20 * sizeof(char)); //declared to handle whitespace
+printf("What product would you like?\n");
+scanf("%c", &temp);
+scanf("%[^\n]s", productName);
+
+
+// struct Shop s = createAndStockShop();
+//
+// //int x = findProduct(s,productName);
+//
+// int x = 0;
+// char* productName="";
+//
+// while(x != 1){
+//
+//
+//   char* productName = (char*) malloc(20 * sizeof(char));
+//   char* temp = (char*) malloc(20 * sizeof(char)); //declared to handle whitespace
+//
+//   printf("What product would you like?\n");
+//   scanf("%c", &temp);
+//   scanf("%[^\n]s", productName);
+//   int x = findProduct(s,productName);
+//
+//   }
+
+
+// loop over to to check if it exists - TODO
+
+
+    int quantity;
+    printf("What quantity of %s is required?\n", productName);
+    scanf("%d", &quantity);
+
+    float budget;
+    printf("What is your budget?\n");
+    scanf("%f", &budget);
+    printf("Budget is %.2f and you require %d of product %s.\n",budget, quantity, productName);
+
+
+struct Customer live = {userName,budget};
+struct ProductStock itemList = {productName, quantity};
+
+
+
+    return 1;
+
+	} else if (strcmp(choice, "n")==0 || strcmp(choice, "N")==0 ){
+		printf("Reading in Shop and Customer CSVs\n");
+    printf("---------------------------------\n");
+		return 2;
+
+	}else {
+    printf("Enter Y or N, %s is invalid\n", choice);
+  }
+}
+
+
 
 
 
@@ -302,20 +314,16 @@ for (int i=0; i<c->index; i++){
     //break;
   }
 
-
-
   double price = findPrice(s,p.name);
 
   //printf("The price of %s in the shop is %.2f\n", p.name,price);
   double itemCost = c->shoppingList[i].quantity * price;
   customerCost += itemCost;
 
-
-
-
 }
 
 if(customerCost>c->budget){
+  printf("\n");
   printf("Customer %s has inadequate budget to satisfy order\n",c->name);
 }else{
   c->budget = c->budget - customerCost;}
